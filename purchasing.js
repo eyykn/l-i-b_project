@@ -123,3 +123,25 @@ function doneOrder(){
     alert("Add items to cart before finalizing order!");
   }
 }
+
+function trackOrder(trackingID){
+    //Make a get request to the database
+    let request = new XMLHttpRequest();
+    request.onreadystatechange = function() {
+        if (request.readyState === 4) {
+            if (request.status === 200) {
+              let data = JSON.parse(request.responseText);
+              data = data.trackingInfo;
+              document.getElementById("trackingInfo").innerHTML = `<h3>Current Address: ${data[0]}, Status: ${data[1]}</h3>`;
+            } else if(request.status === 401 && request.responseText === 'result fail') {
+              document.getElementById("trackingInfo").innerHTML = `<h3>No tracking info found try again...</h3>`;
+            }
+            else {
+              alert(request.responseText);
+            }
+        } 
+    };
+    request.open('GET', window.location.href+'/' + trackingID, true);
+    request.setRequestHeader("Content-Type", "application/json");
+    request.send(); //Send request
+}

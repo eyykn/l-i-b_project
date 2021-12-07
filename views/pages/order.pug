@@ -6,17 +6,34 @@ html
 		if loggedAsOwner = true 
 			include ../partials/ownerHeader
 		else 
-			include ../partials/header
+			include ../partials/userHeader
+		script(src= '../../purchasing.js')
 		div#main
 			h1 Look Inna Book Store User Order Details
 			br
 			h2 Hello #{loggedInUserInfo.name}
 			br
-			if ordersInfo
+			if orderInfo
+				h3 Order Details for Order ID: #{orderInfo.orderID}
+				br
+				p Order Total: #{orderInfo.totalPrice}
+				br
+				p Order Shipping Address: #{orderInfo.shipAddr}
+				br
+				p Order Billing Address: #{orderInfo.billAddr}
+				br
+				p Order Time: #{orderInfo.orderTime}
+				br
+				p Order Content:
 				ul
-					each val, key in ordersInfo
-						li
-							a(href=`/orders/${val.order_id}`) Order ID ##{val.order_id}
+					if orderInfo.books
+						each val in orderInfo.books
+							li #{val}
+				br
+				p Order Tracking ID: #{orderInfo.trackingID}
+				input(type="submit" id="submitBtn" value="Get Tracking Info" onclick=`trackOrder(${orderInfo.trackingID})`)
+				br
+				div#trackingInfo
 			else 
 				h3 No orders placed yet.
 		style.
@@ -44,30 +61,6 @@ html
 				color: white;
 				height: 5%;
 				width: 10%;
-			}
-			#addBtn {
-				background: green;
-				text-align: center;
-				color: white;
-				height: 30px;
-				width: 7%;
-			}
-			#remBtn {
-				background: red;
-				text-align: center;
-				color: white;
-				height: 30px;
-				width: 7%;
-			}
-			.row {
-				content="";
-				display: table;
-				clear: both;
-				width: 100%
-			}
-			.column {
-				float: left;
-				width: 50%;
 			}
 			#submitBtn {
 				background: #556B2F;
