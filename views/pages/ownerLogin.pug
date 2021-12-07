@@ -1,0 +1,41 @@
+html
+	head
+		title  Look Inna Book Store Owner Login
+
+	body
+		include ../partials/header
+		script(src= '../../login.js')
+		div#main
+			h1 Look Inna Book Store Owner Login
+			br
+			br
+			h2 Owner Email:
+				input(type="textbox" id="email")
+			h2 Owner Password:
+				input(type="textbox" id="pass")
+			br
+			input(type="submit" id="submitBtn" value="Submit" onclick="verifyLogin(document.getElementById('email').value, document.getElementById('pass').value)")
+		
+		style.
+			* {
+				color: #212b31;
+			}
+
+			body {
+				color: #212b31;
+				background: #bfd9bf;
+			}
+			h1 {
+				font-size: 110px;
+			}
+			#submitBtn {
+				background: #2e6b48;
+				border-radius: 5px;
+				text-align: center;
+				padding: 10px;
+				color: white;
+				height: 5%;
+				width: 10%;
+			}
+
+		include ../partials/footer

@@ -1,0 +1,82 @@
+html
+	head
+		title  Look Inna Book Store User Order Details
+
+	body
+		if loggedAsOwner = true 
+			include ../partials/ownerHeader
+		else 
+			include ../partials/header
+		div#main
+			h1 Look Inna Book Store User Order Details
+			br
+			h2 Hello #{loggedInUserInfo.name}
+			br
+			if ordersInfo
+				ul
+					each val, key in ordersInfo
+						li
+							a(href=`/orders/${val.order_id}`) Order ID ##{val.order_id}
+			else 
+				h3 No orders placed yet.
+		style.
+			* {
+				color: #212b31;
+			}
+			body {
+				color: #212b31;
+				background: #bfd9bf;
+			}
+			h1 {
+				font-size: 110px;
+			}
+			h2 {
+				font-size: 90px;
+			}
+			h3 {
+				font-size: 70px;
+			}
+			a.btn {
+				background: #556B2F;
+				border-radius: 5px;
+				text-align: center;
+				padding: 10px;
+				color: white;
+				height: 5%;
+				width: 10%;
+			}
+			#addBtn {
+				background: green;
+				text-align: center;
+				color: white;
+				height: 30px;
+				width: 7%;
+			}
+			#remBtn {
+				background: red;
+				text-align: center;
+				color: white;
+				height: 30px;
+				width: 7%;
+			}
+			.row {
+				content="";
+				display: table;
+				clear: both;
+				width: 100%
+			}
+			.column {
+				float: left;
+				width: 50%;
+			}
+			#submitBtn {
+				background: #556B2F;
+				border-radius: 5px;
+				text-align: center;
+				padding: 10px;
+				color: white;
+				height: 5%;
+				width: 15%;
+			}
+
+		include ../partials/footer

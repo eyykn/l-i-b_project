@@ -1,0 +1,95 @@
+html
+	head
+		title  Look Inna Book Store Search Results
+
+	body
+		if loggedAsOwner = true 
+			include ../partials/ownerHeader
+		else 
+			include ../partials/header
+		script(src= '../../purchasing.js')
+		div#main
+			h1 Look Inna Book Store Search Results
+			br
+			h2 Hello #{loggedInUserInfo.name}
+			br
+			.row
+				.column
+					h3 Results for search #{bookQuery}
+					br
+					ul
+						each val, key in searchArr
+							li
+								p(id=`${val[7]}`) Title: #{val[0]}, Author: #{val[1]}, Publisher: #{val[2]}, Price:#{val[3]}, Genre: #{val[4]}, Page Num: #{val[5]}, Stock: #{val[6]}
+								button(id="addBtn" value="+" onclick=`addToCart(${val[7]})`)  
+					h2 Make another search?
+					button(id="goToSearch" value="Go To Search Page" onclick=`goToSearch()`)  
+				.column
+					h3 Cart Contents: 
+					ul#items
+					input(type="submit" id="submitBtn" value="Done Order" onclick="doneOrder()")
+					br
+					br
+					div#checkoutInfo
+					input(type="submit" id="submitBtn" value="Complete Order" onclick=`placeOrder(document.getElementById('shipAddr').value, document.getElementById('billAddr').value, document.getElementById('cardNum').value, document.getElementById('cardDate').value, document.getElementById('cardCVV').value)`)
+		style.
+			* {
+				color: #212b31;
+			}
+			body {
+				color: #212b31;
+				background: #bfd9bf;
+			}
+			h1 {
+				font-size: 110px;
+			}
+			h2 {
+				font-size: 90px;
+			}
+			h3 {
+				font-size: 70px;
+			}
+			a.btn {
+				background: #556B2F;
+				border-radius: 5px;
+				text-align: center;
+				padding: 10px;
+				color: white;
+				height: 5%;
+				width: 10%;
+			}
+			#addBtn {
+				background: green;
+				text-align: center;
+				color: white;
+				height: 30px;
+				width: 7%;
+			}
+			#remBtn {
+				background: red;
+				text-align: center;
+				color: white;
+				height: 30px;
+				width: 7%;
+			}
+			.row {
+				content="";
+				display: table;
+				clear: both;
+				width: 100%
+			}
+			.column {
+				float: left;
+				width: 50%;
+			}
+			#submitBtn {
+				background: #556B2F;
+				border-radius: 5px;
+				text-align: center;
+				padding: 10px;
+				color: white;
+				height: 5%;
+				width: 15%;
+			}
+
+		include ../partials/footer

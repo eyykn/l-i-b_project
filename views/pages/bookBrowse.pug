@@ -1,0 +1,50 @@
+html
+	head
+		title  Look Inna Book Store Browse Books
+
+	body
+		if loggedAsOwner = true 
+			include ../partials/ownerHeader
+		else 
+			include ../partials/header
+		script(src= '../../purchasing.js')
+		div#main
+			h1 Look Inna Book Store Browse Books
+			br
+			h2 Hello #{loggedInUserInfo.name}
+			br
+			h3 Enter book detail to search for:
+				input(type="textbox" id="q")
+			br
+			input(type="submit" id="submitBtn" value="Search" onclick="getResults(document.getElementById('q').value)")
+
+
+		style.
+			* {
+				color: #212b31;
+			}
+			body {
+				color: #212b31;
+				background: #bfd9bf;
+			}
+			h1 {
+				font-size: 110px;
+			}
+			h2 {
+				font-size: 90px;
+			}
+			h3 {
+				font-size: 70px;
+			}
+			#submitBtn {
+				background: #556B2F;
+				border-radius: 5px;
+				text-align: center;
+				padding: 10px;
+				color: white;
+				height: 5%;
+				width: 10%;
+			}
+
+
+		include ../partials/footer

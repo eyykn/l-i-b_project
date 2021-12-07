@@ -1,0 +1,42 @@
+html
+	head
+		title  Look Inna Book Store Customer Login
+
+	body
+		include ../partials/header
+		script(src= '../../login.js')
+		div#main
+			h1 Look Inna Book Customer Homepage
+			br
+			br
+			h2 Customer Email:
+				input(type="textbox" id="email")
+			h2 Customer Password:
+				input(type="textbox" id="pass")
+			br
+			input(type="submit" id="submitBtn" value="Submit" onclick="verifyLogin(document.getElementById('email').value, document.getElementById('pass').value)")
+			h2 Don't have an account?:
+			a.btn(href='/customerCreate') Click to create account!
+		style.
+			* {
+				color: #212b31;
+			}
+
+			body {
+				color: #212b31;
+				background: #bfd9bf;
+			}
+			h1 {
+				font-size: 110px;
+			}
+			#submitBtn, a.btn {
+				background: #396060;
+				border-radius: 5px;
+				text-align: center;
+				padding: 10px;
+				color: white;
+				height: 5%;
+				width: 10%;
+			}
+
+		include ../partials/footer

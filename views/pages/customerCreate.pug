@@ -1,0 +1,47 @@
+html
+	head
+		title  Look Inna Book Store Customer Create Account
+
+	body
+		include ../partials/header
+		script(src= '../../login.js')
+		div#main
+			h1 Look Inna Book Create Account
+			br
+			br
+			h2 Customer Email:
+				input(type="textbox" id="email")
+			h2 Customer Password:
+				input(type="textbox" id="pass")
+			h2 Customer Name:
+				input(type="textbox" id="name")
+			h2 Customer Address:
+				input(type="textbox" id="addr")
+			h2 Customer Phone Num:
+				input(type="textbox" id="num")
+			br
+			input(type="submit" id="submitBtn" value="Create Account" onclick="addLogin(document.getElementById('email').value, document.getElementById('pass').value, document.getElementById('name').value, document.getElementById('addr').value, document.getElementById('num').value, '-1000')")
+
+		style.
+			* {
+				color: #212b31;
+			}
+
+			body {
+				color: #212b31;
+				background: #bfd9bf;
+			}
+			h1 {
+				font-size: 110px;
+			}
+			#submitBtn {
+				background: #396060;
+				border-radius: 5px;
+				text-align: center;
+				padding: 10px;
+				color: white;
+				height: 5%;
+				width: 10%;
+			}
+
+		include ../partials/footer
