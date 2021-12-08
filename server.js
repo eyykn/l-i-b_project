@@ -34,6 +34,8 @@ const renderBrowsePage = pug.compileFile('views/pages/bookBrowse.pug');
 const renderResultsPage = pug.compileFile('views/pages/bookResult.pug');
 const renderOrdersPage = pug.compileFile('views/pages/orders.pug');
 const renderOrderPage = pug.compileFile('views/pages/order.pug');
+const renderReportsPage = pug.compileFile('views/pages/reports.pug');
+const renderAddRemovePage = pug.compileFile('views/pages/addRemove.pug');
 
 
 //Automatically parse JSON data
@@ -67,10 +69,10 @@ app.get("/login.js", (req, res)=> {
   res.sendFile(path.join(__dirname + '/login.js'));
 });
 
-//Handler for request: GET /purchasing.js
-app.get("/purchasing.js", (req, res)=> {
-  console.log("Called GET request for /purchasing.js");
-  res.sendFile(path.join(__dirname + '/purchasing.js'));
+//Handler for request: GET /bookOps.js
+app.get("/bookOps.js", (req, res)=> {
+  console.log("Called GET request for /bookOps.js");
+  res.sendFile(path.join(__dirname + '/bookOps.js'));
 });
 
 //Handler for request: POST /ownerLogin/verify
@@ -137,7 +139,6 @@ app.post("/ownerCreate/create", async (req, res)=> {
       await client.query(SQLquery);
       await client.query('COMMIT');
       SQLquery =  `INSERT INTO owner VALUES (${nextID}, '${email}', '${password}', '${name}', '${address}', ${phoneNum}, ${salary})`;
-      idCount+=1;
       await client.query(SQLquery);
       await client.query('COMMIT');
       res.status(200).send();
@@ -283,7 +284,7 @@ app.post("/bookBrowse/search", async (req, res)=> {
   }
 });
 
-//Handler for request: GET /bookBrowse
+//Handler for request: GET /bookResult
 app.get("/bookResult", async (req, res)=> {
   console.log("Called GET request for /bookResult");
   console.log("searchResults" + JSON.stringify(searchResults));
@@ -300,7 +301,7 @@ app.get("/bookResult", async (req, res)=> {
 });
 
 
-//Handler for request: GET /bookBrowse
+//Handler for request: GET /bookResult/order
 app.post("/bookResult/order", async (req, res)=> {
   console.log("Called GET request for /bookResult/order");
   let shipAddress=req.body.shipAddr;
@@ -311,7 +312,6 @@ app.post("/bookResult/order", async (req, res)=> {
   let orderItems=req.body.cart;
   //CURRENT_TIMESTAMP()
   console.log(JSON.stringify(orderItems));
-  idCount = parseInt(loggedInUserInfo.id)+1;
   console.log(loggedInUserInfo);
   console.log(loggedInUserInfo.id);
   let nextID = 0;
@@ -369,19 +369,23 @@ app.post("/bookResult/order", async (req, res)=> {
 //Handler for request: GET /orders
 app.get("/orders", async (req, res)=> {
   console.log("Called GET request for /orders");
-  let SQLquery = `SELECT DISTINCT order_ID FROM orderR WHERE ID=${loggedInUserInfo.id}`;
-  let ordersInfo = [];
-  try {
-    const response = await client.query(SQLquery);
-    console.log(JSON.stringify(response.rows));
-    if(response.rows) {
-      ordersInfo = response.rows;
-    } 
-    let data = renderOrdersPage({loggedAsOwner, loggedInUserInfo, ordersInfo});
-    res.send(data);
-  } catch (err) {
-    console.log(err.stack);
-    res.status(500).send(JSON.stringify(err.stack));
+  if (!loggedIn) {
+    res.redirect('/');
+  } else {
+    let SQLquery = `SELECT DISTINCT order_ID FROM orderR WHERE ID=${loggedInUserInfo.id}`;
+    let ordersInfo = [];
+    try {
+      const response = await client.query(SQLquery);
+      console.log(JSON.stringify(response.rows));
+      if(response.rows) {
+        ordersInfo = response.rows;
+      } 
+      let data = renderOrdersPage({loggedAsOwner, loggedInUserInfo, ordersInfo});
+      res.send(data);
+    } catch (err) {
+      console.log(err.stack);
+      res.status(500).send(JSON.stringify(err.stack));
+    }
   }
 });
 
@@ -472,6 +476,251 @@ app.get("/orders/:id/:trackingID", async (req, res)=> {
     res.status(500).send(JSON.stringify(err.stack));
   }
 });
+
+//Handler for request: GET /reports.js
+app.get("/reports.js", (req, res)=> {
+  console.log("Called GET request for /reports.js");
+  res.sendFile(path.join(__dirname + '/reports.js'));
+});
+
+//Handler for request: GET /reports
+app.get("/reports", async (req, res)=> {
+  console.log("Called GET request for /reports");
+  if (!loggedAsOwner || !loggedIn) {
+    if (!loggedAsOwner) {
+      res.redirect('/bookBrowse');
+    } else {
+      res.redirect('/');
+    }
+  } else{
+    let data = renderReportsPage({loggedInUserInfo});
+    res.send(data);
+  }
+});
+
+//Handler for request: GET /reports/sales
+app.post("/reports/sales", async (req, res)=> {
+  console.log("Called POST request for /reports/sales");
+  let queryArr=req.body.query.split("/");
+  let date1;
+  let date2;
+  if (queryArr.length === 1){
+    date1 = queryArr[0];
+  }
+  else if (req.body.query !== 'all') {
+    date1 = queryArr[0];
+    date2 = queryArr[1];
+  }
+  let SQLquery; 
+  if (req.body.query !== 'all') {
+    if (date2) {
+      SQLquery = `SELECT SUM(sum) FROM order_totals_for_dates WHERE date>='${date1}' and date <'${date2}'`;
+    } else {
+      SQLquery = `SELECT SUM(sum) FROM order_totals_for_dates WHERE date = '${date1}'`;
+    }
+  } else {
+    SQLquery = `SELECT SUM(sum) FROM order_totals_for_dates`;
+  }
+  try {
+    const response = await client.query(SQLquery);
+    console.log(JSON.stringify(response.rows));
+    if(response.rows[0].sum !== null) {
+      res.status(200).send(response.rows[0].sum.toString());
+    } else {
+      res.status(200).send('No orders were placed on this/these date(s).');
+    }
+  } catch (err) {
+    console.log(err.stack);
+    res.status(500).send(JSON.stringify(err.stack));
+  }
+});
+
+
+//Handler for request: GET /reports/salesInfo
+app.post("/reports/salesInfo", async (req, res)=> {
+  console.log("Called POST request for /reports/salesInfo");
+  let query=req.body.query;
+  let type=req.body.type;
+  let SQLquery;
+  let attrReturn;
+  if (!isNaN(query)) {
+    SQLquery = `select * from getTotalForInfoNumeric('${type}', ${query})`;
+    attrReturn = 'gettotalforinfonumeric';
+  } else {
+    SQLquery = `select * from getTotalForInfo('${type}', '${query}')`;
+    attrReturn = 'gettotalforinfo';
+  }
+  try {
+    const response = await client.query(SQLquery);
+    console.log(JSON.stringify(response.rows));
+    if(response.rows[0][attrReturn] !== null) {
+      res.status(200).send(response.rows[0][attrReturn].toString());
+    } else {
+      res.status(200).send('No orders were placed with this info.');
+    }
+  } catch (err) {
+    console.log(err.stack);
+    res.status(500).send(JSON.stringify(err.stack));
+  }
+});
+
+//Handler for request: GET /reports/expenditures
+app.post("/reports/expenditures", async (req, res)=> {
+  console.log("Called POST request for /reports/expenditures");
+  let queryArr=req.body.query.split("/");
+  let date1;
+  let date2;
+  let daysBetween = 1;
+  if (queryArr.length === 1){
+    date1 = queryArr[0];
+  }
+  else if (req.body.query !== 'all') {
+    date1 = queryArr[0];
+    date2 = queryArr[1];
+    daysBetween = (new Date(date2).getTime() - new Date(date1).getTime()) / (1000 * 3600 * 24);
+    if (daysBetween === 0) {
+      daysBetween = 1;
+    }
+  }
+  let SQLquery; 
+  if (req.body.query !== 'all') {
+    if (date2) {
+      SQLquery = `select (sum(publisher_paid_totals_for_dates.sum) + (sum(salary_paid_totals_for_day.sum) * ${daysBetween})) as expenditure from salary_paid_totals_for_day, publisher_paid_totals_for_dates where date>='${date1}' and date <'${date2}'`;
+    } else {
+      SQLquery = `select (sum(salary_paid_totals_for_day.sum) + sum(publisher_paid_totals_for_dates.sum)) as expenditure from salary_paid_totals_for_day, publisher_paid_totals_for_dates where date='${date1}'`;
+    }
+  } else {
+    SQLquery = `select (sum(salary_paid_totals_for_day.sum) + sum(publisher_paid_totals_for_dates.sum)) as expenditure from salary_paid_totals_for_day, publisher_paid_totals_for_dates`;
+  }
+  try {
+    let response = await client.query(SQLquery);
+    console.log(JSON.stringify(response.rows));
+    if(response.rows[0].expenditure !== null) {
+      res.status(200).send(response.rows[0].expenditure.toString());
+    } else {
+      SQLquery = `select (sum(salary_paid_totals_for_day.sum) * ${daysBetween}) as expenditure from salary_paid_totals_for_day`;
+      response = await client.query(SQLquery);
+      res.status(200).send(response.rows[0].expenditure.toString());
+    }
+  } catch (err) {
+    console.log(err.stack);
+    res.status(500).send(JSON.stringify(err.stack));
+  }
+});
+
+
+//Handler for request: GET /reports/profits
+app.post("/reports/profits", async (req, res)=> {
+  console.log("Called POST request for /reports/profits");
+  let queryArr=req.body.query.split("/");
+  let date1;
+  let date2;
+  let daysBetween = 1;
+  let salesTotal;
+  let expendituresTotal;
+  if (queryArr.length === 1){
+    date1 = queryArr[0];
+  }
+  else if (req.body.query !== 'all') {
+    date1 = queryArr[0];
+    date2 = queryArr[1];
+    daysBetween = (new Date(date2).getTime() - new Date(date1).getTime()) / (1000 * 3600 * 24);
+    if (daysBetween === 0) {
+      daysBetween = 1;
+    }
+  }
+  let SQLquerySales; 
+  let SQLqueryExpend; 
+  if (req.body.query !== 'all') {
+    if (date2) {
+      SQLquerySales = `SELECT SUM(sum) FROM order_totals_for_dates WHERE date>='${date1}' and date <'${date2}'`;
+      SQLqueryExpend = `select (sum(publisher_paid_totals_for_dates.sum) + (sum(salary_paid_totals_for_day.sum) * ${daysBetween})) as expenditure from salary_paid_totals_for_day, publisher_paid_totals_for_dates where date>='${date1}' and date <'${date2}'`;
+    } else {
+      SQLquerySales = `SELECT SUM(sum) FROM order_totals_for_dates WHERE date = '${date1}'`;
+      SQLqueryExpend = `select (sum(salary_paid_totals_for_day.sum) + sum(publisher_paid_totals_for_dates.sum)) as expenditure from salary_paid_totals_for_day, publisher_paid_totals_for_dates where date='${date1}'`;
+    }
+  } else {
+    SQLquerySales = `SELECT SUM(sum) FROM order_totals_for_dates`;
+    SQLqueryExpend = `select (sum(salary_paid_totals_for_day.sum) + sum(publisher_paid_totals_for_dates.sum)) as expenditure from salary_paid_totals_for_day, publisher_paid_totals_for_dates`;
+  }
+  try {
+    let response = await client.query(SQLqueryExpend);
+    console.log(JSON.stringify(response.rows));
+    if(response.rows[0].expenditure !== null) {
+      expendituresTotal = response.rows[0].expenditure;
+      response = await client.query(SQLquerySales);
+      salesTotal = response.rows[0].sum;
+      res.status(200).send((salesTotal - expendituresTotal).toString());
+    } else {
+      SQLqueryExpend = `select (sum(salary_paid_totals_for_day.sum) * ${daysBetween}) as expenditure from salary_paid_totals_for_day`;
+      response = await client.query(SQLqueryExpend);
+      res.status(200).send("-" + response.rows[0].expenditure.toString());
+    }
+  } catch (err) {
+    console.log(err.stack);
+    res.status(500).send(JSON.stringify(err.stack));
+  }
+});
+
+//Handler for request: GET /addRemove
+app.get("/addRemove", async (req, res)=> {
+  console.log("Called GET request for /addRemove");
+  if (!loggedAsOwner || !loggedIn) {
+    if (!loggedAsOwner) {
+      res.redirect('/bookBrowse');
+    } else {
+      res.redirect('/');
+    }
+  } else{
+    let data = renderAddRemovePage({loggedInUserInfo});
+    res.send(data);
+  }
+});
+
+
+//Handler for request: GET /addRemove/add
+app.post("/addRemove/add", async (req, res)=> {
+  console.log("Called GET request for /addRemove/add");
+  let bookName = req.body.bookName;
+  let bookAuth = req.body.bookAuth;
+  let pubID = req.body.pubID;
+  let pubEm = req.body.pubEm;
+  let pubPerc = req.body.pubPerc;
+  let bookPrice = req.body.bookPrice;
+  let bookGen = req.body.bookGen;
+  let bookPages = req.body.bookPages;
+  let bookSt = req.body.bookSt;
+  let SQLquery = `INSERT INTO book VALUES (DEFAULT, '${bookName}', '${bookAuth}', ${pubID}, '${pubEm}', ${pubPerc}, ${bookPrice}, '${bookGen}', ${bookPages}, ${bookSt})`;
+  try {
+      await client.query(SQLquery);
+      await client.query('COMMIT');
+      res.status(200).send('COMMITED');
+    } catch (e) {
+      console.log(e);
+      await client.query('ROLLBACK');
+      res.status(500).send(JSON.stringify(e));
+    }
+});
+
+
+//Handler for request: GET /addRemove/remove
+app.post("/addRemove/remove", async (req, res)=> {
+  let bookID= req.body.bookID;
+  let bookName = req.body.bookName;
+  let bookAuth = req.body.bookAuth;
+  console.log("Called GET request for /addRemove/remove");
+  let SQLquery = `DELETE FROM book WHERE book_id=${bookID} AND book_name='${bookName}' AND book_author='${bookAuth}'`;
+  try {
+      await client.query(SQLquery);
+      await client.query('COMMIT');
+      res.status(200).send('DELETED');
+    } catch (e) {
+      console.log(e);
+      await client.query('ROLLBACK');
+      res.status(500).send(JSON.stringify(e));
+    }
+});
+
 
 //Handler for request: GET /logout
 app.get("/logout", async (req, res)=> {

@@ -34,7 +34,7 @@ create table book
      publisher_email		        varchar(20), 
      publisher_percentage		   numeric(5,2),
      book_price		             numeric(6,2),
-     genre		                  varchar(10), 
+     genre		                  varchar(20), 
      num_of_pages		             numeric(7,2),
      stock		                  numeric(10,0),
 	primary key (book_ID, book_name, book_author),

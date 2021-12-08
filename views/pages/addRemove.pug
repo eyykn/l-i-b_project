@@ -1,0 +1,109 @@
+html
+    head
+        title  Look Inna Book Store Book Add/Remove
+
+    body
+        include ../partials/ownerHeader
+        script(src= '../../bookOps.js')
+        div#main
+            h1 Look Inna Book Store Book Add/Remove
+            br
+            h2 Hello #{loggedInUserInfo.name}
+            br
+            .row
+                .column
+                    h2 To Remove A Book Fill Details Below:
+                    br
+                    h3 Book ID To Remove:
+                        input(type="textbox" id="bookID")
+                    h3 Book Name To Remove:
+                        input(type="textbox" id="bookNm")
+                    h3 Book Author To Remove:
+                        input(type="textbox" id="bookAuth")
+                    input(type="submit" id="submitBtn" value="Submit" onclick="submitChange('REMOVE', document.getElementById('bookID').value, document.getElementById('bookNm').value, document.getElementById('bookAuth').value)")
+                .column
+                    h2 To Add A Book Fill Details Below:
+                    br
+                    h3 Book Name To Add:
+                        input(type="textbox" id="bookName")
+                    h3 Book Author To Add:
+                        input(type="textbox" id="bookAuthor")
+                    h3 Publisher ID To Add:
+                        input(type="textbox" id="pubID")
+                    h3 Publisher Email To Add:
+                        input(type="textbox" id="pubEm")
+                    h3 Publisher Percentage To Add:
+                        input(type="textbox" id="pubPerc")
+                    h3 Book Price To Add:
+                        input(type="textbox" id="bookPr")
+                    h3 Book Genre To Add:
+                        input(type="textbox" id="gen")
+                    h3 Book Num Pages To Add:
+                        input(type="textbox" id="bookNP")
+                    h3 Book Stock To Add:
+                        input(type="textbox" id="bookSt")
+                    input(type="submit" id="submitBtn" value="Submit" onclick="submitChange('ADD', 'default', document.getElementById('bookName').value, document.getElementById('bookAuthor').value, document.getElementById('pubID').value, document.getElementById('pubEm').value, document.getElementById('pubPerc').value, document.getElementById('bookPr').value, document.getElementById('gen').value, document.getElementById('bookNP').value, document.getElementById('bookSt').value)")
+                .column
+                    div#removedConf
+		
+        style.
+            * {
+                color: #212b31;
+            }
+            body {
+                color: #212b31;
+                background: #bfd9bf;
+            }
+            h1 {
+                font-size: 110px;
+            }
+            h2 {
+                font-size: 90px;
+            }
+            h3 {
+                font-size: 70px;
+            }
+            a.btn {
+                background: #556B2F;
+                border-radius: 5px;
+                text-align: center;
+                padding: 10px;
+                color: white;
+                height: 5%;
+                width: 10%;
+            }
+            #addBtn {
+                background: green;
+                text-align: center;
+                color: white;
+                height: 30px;
+                width: 7%;
+            }
+            #remBtn {
+                background: red;
+                text-align: center;
+                color: white;
+                height: 30px;
+                width: 7%;
+            }
+            .row {
+                content="";
+                display: table;
+                clear: both;
+                width: 100%
+            }
+            .column {
+                float: left;
+                width: 33%;
+            }
+            #submitBtn {
+                background: #556B2F;
+                border-radius: 5px;
+                text-align: center;
+                padding: 10px;
+                color: white;
+                height: 5%;
+                width: 15%;
+            }
+
+        include ../partials/footer

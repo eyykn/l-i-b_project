@@ -28,7 +28,7 @@ function getResults(q){
 
 function placeOrder(shipA, billA, cardN, cardD, cardC){
   if (shipA === "" || billA === "" || cardN === "" || cardD === "" || cardC === "") {
-    alert("Please enter complete login details and try again!");
+    alert("Please enter complete checkout details and try again!");
   } else {
     //Make a get request to the database
     let request = new XMLHttpRequest();
@@ -36,6 +36,7 @@ function placeOrder(shipA, billA, cardN, cardD, cardC){
         if (request.readyState === 4) {
             if (request.status === 200 && request.responseText === 'order success') {
               alert("Order Placed");
+              cart = {};
               window.location.replace("/orders");
             } else {
               alert(request.responseText);
@@ -144,4 +145,52 @@ function trackOrder(trackingID){
     request.open('GET', window.location.href+'/' + trackingID, true);
     request.setRequestHeader("Content-Type", "application/json");
     request.send(); //Send request
+}
+
+
+function submitChange(aT, bI, bN, bA, pubI, pubE, pubP, bP, bG, bPG, bS){
+  if ((aT === 'REMOVE') && (bI === "" || bN === "" || bA === "")) {
+      alert("Please enter complete removal details and try again!");
+  } else if ((aT === 'ADD') && (bN === "" || bA === "" || pubI === "" || pubE === "" || pubP === "" || bP === "" || bG === "" || bPG === "" || bS === "")) {
+      alert("Please enter complete addition details and try again!");
+  } else {
+    let action = aT.toLowerCase();
+    //Make a get request to the database
+    let request = new XMLHttpRequest();
+    request.onreadystatechange = function() {
+        if (request.readyState === 4 && request.status === 200) {
+            document.getElementById("removedConf").innerHTML = `<h3>"${aT}"" successful for "[${bI}, ${bN}, ${bA}]": ${request.responseText}</h3>`;
+            document.getElementById('bookNm').value = "";
+            document.getElementById('bookAuth').value  = "";
+            document.getElementById('bookName').value = "";
+            document.getElementById('bookAuthor').value  = "";
+            document.getElementById('pubID').value  = "";
+            document.getElementById('pubEm').value  = "";
+            document.getElementById('pubPerc').value  = "";
+            document.getElementById('bookPr').value  = "";
+            document.getElementById('gen').value  = "";
+            document.getElementById('bookNP').value  = "";
+             document.getElementById('bookSt').value  = "";
+        } else if (request.status === 500)  {
+            alert(request.responseText);
+        } 
+    };
+    request.open('POST', window.location.href+'/'+action, true);
+    request.setRequestHeader("Content-Type", "application/json");
+    //Creates object to send to server side with name and review
+    let requestObj= {};
+    requestObj.bookID=bI;
+    requestObj.bookName=bN;
+    requestObj.bookAuth=bA;
+    if (action === 'add') {
+      requestObj.pubID=pubI;
+      requestObj.pubEm=pubE;
+      requestObj.pubPerc=pubP;
+      requestObj.bookPrice=bP;
+      requestObj.bookGen=bG;
+      requestObj.bookPages=bPG;
+      requestObj.bookSt=bS;
+    }
+    request.send(JSON.stringify(requestObj)); //Send request
+  }
 }

@@ -1,0 +1,101 @@
+html
+	head
+		title  Look Inna Book Store Reports
+
+	body
+		include ../partials/ownerHeader
+		script(src= '../../reports.js')
+		div#main
+			h1 Look Inna Book Store Reports
+			br
+			h2 Hello #{loggedInUserInfo.name}
+			br
+			.row
+				.column
+					h2 Date To Get Sales Total For:
+						p Input as YYYY-MM-DD for single date or YYYY-MM-DD/YYYY-MM-DD for range [earlierDate/laterDate]:
+						p If a date is not specified it will get all sales total of store.
+						input(type="textbox" id="sales")
+						input(type="submit" id="submitBtn" value="Get Report" onclick="getSales(document.getElementById('sales').value)")
+					br
+					h2 Info Type and Value To Get Sales Total For (i.e., genre, author):
+						input(type="textbox" id="salesInfoType")
+						input(type="textbox" id="salesInfoValue")
+						input(type="submit" id="submitBtn" value="Get Report" onclick="getSalesByInfo(document.getElementById('salesInfoType').value, document.getElementById('salesInfoValue').value)")
+					br
+					h2 Date To Get Expenditures Total For:
+						p Input as YYYY-MM-DD for single date or YYYY-MM-DD/YYYY-MM-DD for range [earlierDate/laterDate]:
+						p If a date is not specified it will get all sales total of store.
+						input(type="textbox" id="expend")
+						input(type="submit" id="submitBtn" value="Get Report" onclick="getExpenditures(document.getElementById('expend').value)")
+					br
+					h2 Date To Get Profits Total For (Sales-Expenditures):
+						p Input as YYYY-MM-DD for single date or YYYY-MM-DD/YYYY-MM-DD for range [earlierDate/laterDate]:
+						p If a date is not specified it will get all profits of store.
+						input(type="textbox" id="profit")
+						input(type="submit" id="submitBtn" value="Get Report" onclick="getProfits(document.getElementById('profit').value)")
+					br
+				.column
+					div#reportResults
+		
+		style.
+			* {
+				color: #212b31;
+			}
+			body {
+				color: #212b31;
+				background: #bfd9bf;
+			}
+			h1 {
+				font-size: 110px;
+			}
+			h2 {
+				font-size: 90px;
+			}
+			h3 {
+				font-size: 70px;
+			}
+			a.btn {
+				background: #556B2F;
+				border-radius: 5px;
+				text-align: center;
+				padding: 10px;
+				color: white;
+				height: 5%;
+				width: 10%;
+			}
+			#addBtn {
+				background: green;
+				text-align: center;
+				color: white;
+				height: 30px;
+				width: 7%;
+			}
+			#remBtn {
+				background: red;
+				text-align: center;
+				color: white;
+				height: 30px;
+				width: 7%;
+			}
+			.row {
+				content="";
+				display: table;
+				clear: both;
+				width: 100%
+			}
+			.column {
+				float: left;
+				width: 50%;
+			}
+			#submitBtn {
+				background: #556B2F;
+				border-radius: 5px;
+				text-align: center;
+				padding: 10px;
+				color: white;
+				height: 5%;
+				width: 15%;
+			}
+
+		include ../partials/footer
