@@ -5,7 +5,7 @@ const { Client } = require('pg'); //PostgreSQL node connection module
 var _ = require('lodash');
 const app = express();
 global.TextEncoder = require("util").TextEncoder;
-const { TextDecoder } = require('util');const { random } = require('lodash');
+const { TextDecoder } = require('util');
  global.TextDecoder = TextDecoder;
 
 const client = new Client({
