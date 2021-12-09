@@ -45,7 +45,7 @@ SELECT MAX(order_ID) FROM orderR;
 INSERT INTO tracking VALUES (${nextID}, DEFAULT, DEFAULT);
 
 --Inserts an order record/tuple with given values into orderR relation [line 335 in server.js]
-INSERT INTO orderR VALUES (${nextOrderID}, ${loggedInUserInfo.id}, '${loggedInUserInfo.email}', ${nextID}, '${billAddress}', '${shipAddress}', ${cardNum}, '${cardDate}', ${cardCVV}, CURRENT_TIMESTAMP);
+INSERT INTO orderR VALUES (${nextOrderID}, ${loggedInUserInfo.id}, '${loggedInUserInfo.email}', ${nextID}, '${billAddress}', '${shipAddress}', ${cardNum}, '${cardDate}', ${cardCVV}, CURRENT_TIMESTAMP(0)::TIMESTAMP WITHOUT TIME ZONE);
 
 --Retrieves the stock for an input book [line 342 in server.js]
 SELECT DISTINCT stock FROM book WHERE book_ID=${item.book_ID} AND book_name='${item.book_name}' AND book_author='${item.book_author}';

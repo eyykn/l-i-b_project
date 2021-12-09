@@ -330,7 +330,7 @@ app.post("/bookResult/order", async (req, res)=> {
     SQLquery = `INSERT INTO tracking VALUES (${nextID}, DEFAULT, DEFAULT)`;
     await client.query(SQLquery);
     await client.query('COMMIT');
-    SQLquery = `INSERT INTO orderR VALUES (${nextOrderID}, ${loggedInUserInfo.id}, '${loggedInUserInfo.email}', ${nextID}, '${billAddress}', '${shipAddress}', ${cardNum}, '${cardDate}', ${cardCVV}, CURRENT_TIMESTAMP)`;
+    SQLquery = `INSERT INTO orderR VALUES (${nextOrderID}, ${loggedInUserInfo.id}, '${loggedInUserInfo.email}', ${nextID}, '${billAddress}', '${shipAddress}', ${cardNum}, '${cardDate}', ${cardCVV}, CURRENT_TIMESTAMP(0)::TIMESTAMP WITHOUT TIME ZONE)`;
     await client.query(SQLquery);
     await client.query('COMMIT'); 
     Object.values(orderItems).forEach(async (item) => {

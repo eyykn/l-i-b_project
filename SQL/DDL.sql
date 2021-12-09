@@ -28,8 +28,8 @@ create table owner
 --Creates book relation
 create table book
 	(book_ID		                  serial, 
-     book_name		                  varchar(30), 
-	 book_author		             varchar(30), 
+     book_name		                  varchar(50), 
+	book_author		             varchar(30), 
      publisher_ID                     integer, 
      publisher_email		        varchar(20), 
      publisher_percentage		   numeric(5,2),
@@ -61,7 +61,7 @@ create table orderR
      card_num   		             numeric(10,0),
      card_expiration_date   		   varchar(7),
      card_cvv                         numeric(4,0),
-     order_date_time                  timestamp,
+     order_date_time                  timestamp without time zone,
 	primary key (order_ID),
     foreign key (ID, email) references customer
         on delete set null,
