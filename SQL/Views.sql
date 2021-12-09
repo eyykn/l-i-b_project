@@ -1,7 +1,7 @@
--- Create order detail view
+-- Create order detail view (aggregate of orderR, order_book, and book relations)
  CREATE VIEW order_all_details AS 
     SELECT distinct *
-    from orderR inner join order_book using(order_ID) inner join book using(book_Id, book_name, book_author);
+    FROM orderR INNER JOIN order_book USING(order_ID) INNER JOIN book USING(book_Id, book_name, book_author);
 
 --Gets difference between current time and time since order
 create view get_time_since_order AS
@@ -25,4 +25,4 @@ CREATE VIEW publisher_paid_totals_for_dates AS
 CREATE VIEW salary_paid_totals_for_day AS
 	SELECT sum(yearly_salary/260)
 	FROM owner
-	group by ID;
+	GROUP BY ID;

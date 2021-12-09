@@ -1,89 +1,89 @@
 --Retrieves all order info related to order ID passed in
-create function getOrderInfo(orderID integer)
-    returns setof order_all_details
-	language plpgsql
-as
+CREATE FUNCTION getOrderInfo(orderID integer)
+    RETURNS setof order_all_details
+	LANGUAGE plpgsql
+AS
 $$
-begin
-   	return QUERY
-	select distinct *
-	from order_all_details
-	where order_ID = orderID;
-end;
+BEGIN
+   	RETURN QUERY
+	SELECT distinct *
+	FROM order_all_details
+	WHERE order_ID = orderID;
+END;
 $$;
 
 --Retrieves order total for order ID passed in
-create function getOrderTotal(orderID integer)
-    returns numeric
-	language plpgsql
-as
+CREATE FUNCTION getOrderTotal(orderID integer)
+    RETURNS numeric
+	LANGUAGE plpgsql
+AS
 $$
-declare
+DECLARE
 	orderTotal numeric;
-begin
-	select sum((book_price * quantity)) as total
+BEGIN
+	SELECT sum((book_price * quantity)) AS total
 	into orderTotal
-	from order_all_details
-	where order_ID=orderID;
+	FROM order_all_details
+	WHERE order_ID=orderID;
 	
-	return orderTotal;
-end;
+	RETURN orderTotal;
+END;
 $$;
 
 
 --Retrieves all order info and sum related to info passed in
-create function getTotalForInfo(attr varchar, val varchar)
-    returns numeric
-	language plpgsql
-as
+CREATE FUNCTION getTotalForInfo(attr varchar, val varchar)
+    RETURNS numeric
+	LANGUAGE plpgsql
+AS
 $$
-declare
+DECLARE
 	sumTotal numeric;
-begin
-	EXECUTE 'SELECT sum(sumTot) as sumAll FROM (SELECT DISTINCT ' 
+BEGIN
+	EXECUTE 'SELECT sum(sumTot) AS sumAll FROM (SELECT DISTINCT ' 
 			|| quote_ident(attr) 
-			||', SUM(book_price * quantity) as sumTot FROM order_all_details WHERE '
+			||', SUM(book_price * quantity) AS sumTot FROM order_all_details WHERE '
 			|| quote_ident(attr) 
 			|| '=' 
 			|| quote_literal(val) 
 			||' GROUP BY '
 			|| quote_ident(attr) 
-			||') as subQ;'
+			||') AS subQ;'
     INTO sumTotal;
 	
 	RETURN sumTotal;
-end;
+END;
 $$;
 
 --Retrieves all order info and sum related to numeric info passed in
-create function getTotalForInfoNumeric(attr varchar, val numeric)
-    returns numeric
-	language plpgsql
-as
+CREATE FUNCTION getTotalForInfoNumeric(attr varchar, val numeric)
+    RETURNS numeric
+	LANGUAGE plpgsql
+AS
 $$
-declare
+DECLARE
 	sumTotal numeric;
-begin
-	EXECUTE 'SELECT sum(sumTot) as sumAll FROM (SELECT DISTINCT ' 
+BEGIN
+	EXECUTE 'SELECT sum(sumTot) AS sumAll FROM (SELECT DISTINCT ' 
 			|| quote_ident(attr) 
-			||', SUM(book_price * quantity) as sumTot FROM order_all_details WHERE '
+			||', SUM(book_price * quantity) AS sumTot FROM order_all_details WHERE '
 			|| quote_ident(attr) 
 			|| '=' 
 			|| quote_literal(val) 
 			||' GROUP BY '
 			|| quote_ident(attr) 
-			||') as subQ;'
+			||') AS subQ;'
     INTO sumTotal;
 	
 	RETURN sumTotal;
-end;
+END;
 $$;
 
 
 --Function that stock_reorder trigger uses to email the publisher to reorder new books
 CREATE FUNCTION email_publisher_reorder() 
    RETURNS TRIGGER 
-   LANGUAGE PLPGSQL
+   LANGUAGE plpgsql
 AS $$
 BEGIN
    	IF  (NEW.stock <= 10) THEN

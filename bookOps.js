@@ -1,5 +1,6 @@
 let cart = {};
 
+// Function to send a request to get the search result with the input query 
 function getResults(q){
     if (q === "") {
       q = 'all';
@@ -26,6 +27,7 @@ function getResults(q){
       request.send(JSON.stringify(requestObj)); //Send request
 }
 
+// Function to send a request to server that triggers order addition to database with given details, empties checkout details upon success.
 function placeOrder(shipA, billA, cardN, cardD, cardC){
   if (shipA === "" || billA === "" || cardN === "" || cardD === "" || cardC === "") {
     alert("Please enter complete checkout details and try again!");
@@ -57,6 +59,7 @@ function placeOrder(shipA, billA, cardN, cardD, cardC){
   }
 }
 
+// Function to add input product to cart
 function addToCart(id){
   document.getElementById("items").innerHTML = "";
   //Make a get request to the database
@@ -95,7 +98,7 @@ function addToCart(id){
   console.log(JSON.stringify(cart));
 }
 
-
+// Function to remove input product to cart
 function removeFromCart(id){
   if (cart[id].quantity === 1) {
     delete cart[id];
@@ -108,7 +111,7 @@ function removeFromCart(id){
   });
 }
 
-
+// Function to reload page for new search 
 function goToSearch(){
   if (cart) {
     alert("Please complete current order before making another search or cart contents will be lost!");
@@ -117,6 +120,7 @@ function goToSearch(){
   }
 }
 
+// Function to add display of form to complete order checkout
 function doneOrder(){
   if (cart) {
     document.getElementById("checkoutInfo").innerHTML = `<h3>Shipping Address:</h3><input type="textbox" id="shipAddr"/><h3>Billing Address:</h3><input type="textbox" id="billAddr"/><h3>Card Num:</h3><input type="textbox" id="cardNum"/><h3>Card Date:</h3><input type="textbox" id="cardDate"/><h3>Card CVV:</h3><input type="textbox" id="cardCVV"/>`;
@@ -125,6 +129,7 @@ function doneOrder(){
   }
 }
 
+// Function to send a request to get the tracking details with the input query 
 function trackOrder(trackingID){
     //Make a get request to the database
     let request = new XMLHttpRequest();
@@ -147,7 +152,7 @@ function trackOrder(trackingID){
     request.send(); //Send request
 }
 
-
+// Function to send request to server that triggers the addition or removal of book wth input details
 function submitChange(aT, bI, bN, bA, pubI, pubE, pubP, bP, bG, bPG, bS){
   if ((aT === 'REMOVE') && (bI === "" || bN === "" || bA === "")) {
       alert("Please enter complete removal details and try again!");

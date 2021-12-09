@@ -1,3 +1,4 @@
+// Function to send a request to get the expenditures with the input query and response to the results to html page
 function getExpenditures(q){
     if (q === "") {
       q = 'all';
@@ -19,6 +20,7 @@ function getExpenditures(q){
       request.send(JSON.stringify(requestObj)); //Send request
 }
 
+// Function to send a request to get the sales with the input query and response to the results to html page
 function getSales(q){
     console.log("getSales Called");
     if (q === "") {
@@ -41,7 +43,7 @@ function getSales(q){
       request.send(JSON.stringify(requestObj)); //Send request
 }
 
-
+// Function to send a request to get the sales with the input queries and response to the results to html page
 function getSalesByInfo(type, q){
     if (type === "" || q === "") {
         alert("Please specify a type and/or query to get sales for or use the profit by date generator above.");
@@ -65,7 +67,7 @@ function getSalesByInfo(type, q){
 }
 
 
-
+// Function to send a request to get the profits (sales - expenditure) with the input query and response to the results to html page
 function getProfits(q){
     console.log("getProfits Called");
     if (q === "") {

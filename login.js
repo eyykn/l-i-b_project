@@ -1,3 +1,4 @@
+// Function to send request to server that triggers login verification for input user details,redirects to book browsing page upon success.
 function verifyLogin(e, p){
     if (e === "" || p === "") {
       alert("Please enter complete login details and try again!");
@@ -25,6 +26,7 @@ function verifyLogin(e, p){
     }
 }
 
+// Function to send request to server that triggers user addition to database with given details, redirects to login page upon success.
 function addLogin(e, p, n, a, pN, sal){
     if (e === "" || p === "") {
       alert("Please enter complete login details and try again!");

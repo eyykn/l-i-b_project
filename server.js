@@ -6,7 +6,7 @@ var _ = require('lodash');
 const app = express();
 global.TextEncoder = require("util").TextEncoder;
 const { TextDecoder } = require('util');
- global.TextDecoder = TextDecoder;
+global.TextDecoder = TextDecoder;
 
 const client = new Client({
   user: 'postgres',
@@ -270,10 +270,8 @@ app.post("/bookBrowse/search", async (req, res)=> {
       const response = await client.query(SQLquery);
       if(response.rows[0]) {
         searchResults = response.rows;
-        console.log(response.rows);
         bookQuery = query;
         res.status(200).send('result success');
-        console.log("searchResults" + JSON.stringify(searchResults));
       } else {
         res.status(401).send('result fail');
       } 
@@ -455,9 +453,9 @@ app.get("/orders/:id/:trackingID", async (req, res)=> {
     }
     console.log(minsPassed);
     if (minsPassed >= 2 && minsPassed < 5) {
-      SQLquery = `UPDATE tracking SET tracking_address='2 InTransit St, London EC1A 7JQ, United Kingdom', tracking_status='In Transit'`;
+      SQLquery = `UPDATE tracking SET tracking_address='2 InTransit St, London EC1A 7JQ, United Kingdom', tracking_status='In Transit' WHERE tracking_id=${trackingID};`;
     } else if (minsPassed >= 5) {
-      SQLquery = `UPDATE tracking SET tracking_address='${shipAddr}', tracking_status='Delivered'`;
+      SQLquery = `UPDATE tracking SET tracking_address='${shipAddr}', tracking_status='Delivered' WHERE tracking_id=${trackingID};`;
     }
     await client.query(SQLquery);
     await client.query('COMMIT');
@@ -544,10 +542,10 @@ app.post("/reports/salesInfo", async (req, res)=> {
   let SQLquery;
   let attrReturn;
   if (!isNaN(query)) {
-    SQLquery = `select * from getTotalForInfoNumeric('${type}', ${query})`;
+    SQLquery = `SELECT * FROM getTotalForInfoNumeric('${type}', ${query})`;
     attrReturn = 'gettotalforinfonumeric';
   } else {
-    SQLquery = `select * from getTotalForInfo('${type}', '${query}')`;
+    SQLquery = `SELECT * FROM getTotalForInfo('${type}', '${query}')`;
     attrReturn = 'gettotalforinfo';
   }
   try {
@@ -585,12 +583,12 @@ app.post("/reports/expenditures", async (req, res)=> {
   let SQLquery; 
   if (req.body.query !== 'all') {
     if (date2) {
-      SQLquery = `select (sum(publisher_paid_totals_for_dates.sum) + (sum(salary_paid_totals_for_day.sum) * ${daysBetween})) as expenditure from salary_paid_totals_for_day, publisher_paid_totals_for_dates where date>='${date1}' and date <'${date2}'`;
+      SQLquery = `SELECT (SUM(publisher_paid_totals_for_dates.sum) + (SUM(salary_paid_totals_for_day.sum) * ${daysBetween})) AS expenditure FROM salary_paid_totals_for_day, publisher_paid_totals_for_dates WHERE date>='${date1}' AND date <'${date2}'`;
     } else {
-      SQLquery = `select (sum(salary_paid_totals_for_day.sum) + sum(publisher_paid_totals_for_dates.sum)) as expenditure from salary_paid_totals_for_day, publisher_paid_totals_for_dates where date='${date1}'`;
+      SQLquery = `SELECT (SUM(salary_paid_totals_for_day.sum) + SUM(publisher_paid_totals_for_dates.sum)) AS expenditure FROM salary_paid_totals_for_day, publisher_paid_totals_for_dates WHERE date='${date1}'`;
     }
   } else {
-    SQLquery = `select (sum(salary_paid_totals_for_day.sum) + sum(publisher_paid_totals_for_dates.sum)) as expenditure from salary_paid_totals_for_day, publisher_paid_totals_for_dates`;
+    SQLquery = `SELECT (SUM(salary_paid_totals_for_day.sum) + SUM(publisher_paid_totals_for_dates.sum)) AS expenditure FROM salary_paid_totals_for_day, publisher_paid_totals_for_dates`;
   }
   try {
     let response = await client.query(SQLquery);
@@ -598,7 +596,7 @@ app.post("/reports/expenditures", async (req, res)=> {
     if(response.rows[0].expenditure !== null) {
       res.status(200).send(response.rows[0].expenditure.toString());
     } else {
-      SQLquery = `select (sum(salary_paid_totals_for_day.sum) * ${daysBetween}) as expenditure from salary_paid_totals_for_day`;
+      SQLquery = `SELECT (SUM(salary_paid_totals_for_day.sum)) AS expenditure FROM salary_paid_totals_for_day`;
       response = await client.query(SQLquery);
       res.status(200).send(response.rows[0].expenditure.toString());
     }
@@ -633,15 +631,15 @@ app.post("/reports/profits", async (req, res)=> {
   let SQLqueryExpend; 
   if (req.body.query !== 'all') {
     if (date2) {
-      SQLquerySales = `SELECT SUM(sum) FROM order_totals_for_dates WHERE date>='${date1}' and date <'${date2}'`;
-      SQLqueryExpend = `select (sum(publisher_paid_totals_for_dates.sum) + (sum(salary_paid_totals_for_day.sum) * ${daysBetween})) as expenditure from salary_paid_totals_for_day, publisher_paid_totals_for_dates where date>='${date1}' and date <'${date2}'`;
+      SQLquerySales = `SELECT SUM(sum) FROM order_totals_for_dates WHERE date>='${date1}' AND date <'${date2}'`;
+      SQLqueryExpend = `SELECT (SUM(publisher_paid_totals_for_dates.sum) + (SUM(salary_paid_totals_for_day.sum) * ${daysBetween})) AS expenditure from salary_paid_totals_for_day, publisher_paid_totals_for_dates WHERE date>='${date1}' AND date <'${date2}'`;
     } else {
       SQLquerySales = `SELECT SUM(sum) FROM order_totals_for_dates WHERE date = '${date1}'`;
-      SQLqueryExpend = `select (sum(salary_paid_totals_for_day.sum) + sum(publisher_paid_totals_for_dates.sum)) as expenditure from salary_paid_totals_for_day, publisher_paid_totals_for_dates where date='${date1}'`;
+      SQLqueryExpend = `SELECT (SUM(salary_paid_totals_for_day.sum) + SUM(publisher_paid_totals_for_dates.sum)) AS expenditure FROM salary_paid_totals_for_day, publisher_paid_totals_for_dates WHERE date='${date1}'`;
     }
   } else {
     SQLquerySales = `SELECT SUM(sum) FROM order_totals_for_dates`;
-    SQLqueryExpend = `select (sum(salary_paid_totals_for_day.sum) + sum(publisher_paid_totals_for_dates.sum)) as expenditure from salary_paid_totals_for_day, publisher_paid_totals_for_dates`;
+    SQLqueryExpend = `SELECT (SUM(salary_paid_totals_for_day.sum) + SUM(publisher_paid_totals_for_dates.sum)) AS expenditure FROM salary_paid_totals_for_day, publisher_paid_totals_for_dates`;
   }
   try {
     let response = await client.query(SQLqueryExpend);
@@ -652,7 +650,7 @@ app.post("/reports/profits", async (req, res)=> {
       salesTotal = response.rows[0].sum;
       res.status(200).send((salesTotal - expendituresTotal).toString());
     } else {
-      SQLqueryExpend = `select (sum(salary_paid_totals_for_day.sum) * ${daysBetween}) as expenditure from salary_paid_totals_for_day`;
+      SQLqueryExpend = `SELECT (SUM(salary_paid_totals_for_day.sum)) AS expenditure FROM salary_paid_totals_for_day`;
       response = await client.query(SQLqueryExpend);
       res.status(200).send("-" + response.rows[0].expenditure.toString());
     }
