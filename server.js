@@ -249,7 +249,6 @@ app.get("/bookBrowse", async (req, res)=> {
     console.log("Not authorized to access this page... Redirecting to home, please login!");
     res.redirect('/');
   } else{
-    console.log(loggedAsOwner);
     let data = renderBrowsePage({loggedAsOwner, loggedInUserInfo});
     res.send(data);
   }
