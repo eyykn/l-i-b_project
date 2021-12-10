@@ -1,8 +1,8 @@
 --Creates publisher relation
 create table publisher
-	(publisher_ID		            serial, 
-     publisher_email		       varchar(20), 
-     publisher_name		            varchar(20), 
+	(publisher_ID		            integer, 
+     publisher_email		       varchar(30), 
+     publisher_name		            varchar(30), 
      publisher_address		       varchar(50), 
 	publisher_phone_number		  numeric(12,0),
      bank_account_num   		       numeric(10,0),
@@ -11,10 +11,10 @@ create table publisher
 
 --Creates customer relation
 create table customer
-	(ID		                        serial, 
-     email		                   varchar(20), 
-     password		                   varchar(20), 
-     name		                        varchar(20), 
+	(ID		                        integer, 
+     email		                   varchar(30), 
+     password		                   varchar(30), 
+     name		                        varchar(30), 
      address		                   varchar(50), 
 	phone_number		              numeric(12,0),
 	primary key (ID, email)   
@@ -27,15 +27,15 @@ create table owner
 
 --Creates book relation
 create table book
-	(book_ID		                  serial, 
+	(book_ID		                  integer, 
      book_name		                  varchar(50), 
 	book_author		             varchar(30), 
      publisher_ID                     integer, 
-     publisher_email		        varchar(20), 
+     publisher_email		        varchar(30), 
      publisher_percentage		   numeric(5,2),
      book_price		             numeric(6,2),
      genre		                  varchar(20), 
-     num_of_pages		             numeric(7,2),
+     num_of_pages		             numeric(7,0),
      stock		                  numeric(10,0),
 	primary key (book_ID, book_name, book_author),
     foreign key (publisher_ID, publisher_email) references publisher
@@ -44,7 +44,7 @@ create table book
 
 --Creates tracking relation
 create table tracking
-	(tracking_ID		             serial, 
+	(tracking_ID		             integer, 
      tracking_address		        varchar(50) default '1 Warehouse St, K15 8B6, Ottawa, ON, Canada', 
      tracking_status		        varchar(20) default 'Packaging Order', 
 	 primary key (tracking_ID)
@@ -52,9 +52,9 @@ create table tracking
 	
 --Creates orderR relation     
 create table orderR
-	(order_ID		                  serial, 
+	(order_ID		                  integer, 
      ID		                       integer, 
-     email		                  varchar(20),
+     email		                  varchar(30),
      tracking_ID		             integer, 
      billing_address		        varchar(50), 
      shipping_address		        varchar(50), 

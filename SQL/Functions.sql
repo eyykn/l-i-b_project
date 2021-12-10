@@ -87,7 +87,7 @@ CREATE FUNCTION email_publisher_reorder()
 AS $$
 BEGIN
    	IF  (NEW.stock <= 10) THEN
-		UPDATE book SET stock=OLD.stock+10 WHERE book_ID=NEW.book_ID AND book_name=NEW.book_name AND book_author=NEW.book_author;
+		UPDATE book SET stock=NEW.stock+10 WHERE book_ID=NEW.book_ID AND book_name=NEW.book_name AND book_author=NEW.book_author;
 	END IF;
 
 	RETURN NEW;

@@ -11,7 +11,7 @@ global.TextDecoder = TextDecoder;
 const client = new Client({
   user: 'postgres',
   host: 'localhost',
-  database: 'lookInnaBook',
+  database: 'libDB',
   password: '2000',
   port: 5432,
 });
@@ -30,6 +30,7 @@ let loggedAsOwner = false;
 let searchResults = [-100];
 let bookQuery = "";
 
+//Page rendering functions
 const renderBrowsePage = pug.compileFile('views/pages/bookBrowse.pug');
 const renderResultsPage = pug.compileFile('views/pages/bookResult.pug');
 const renderOrdersPage = pug.compileFile('views/pages/orders.pug');
@@ -116,7 +117,12 @@ app.post("/ownerLogin/verify", async (req, res)=> {
 //Handler for request: GET /customerCreate
 app.get("/ownerCreate", (req, res)=> {
   console.log("Called GET request for /ownerCreate");
-  res.render("pages/ownerCreate");
+  if (!loggedIn && !loggedAsOwner) {
+    console.log("Not authorized to access this page... Redirecting to home, please login!");
+    res.redirect('/');
+  } else{
+    res.render("pages/ownerCreate");
+  }
 });
 
 //Handler for request: POST /ownerLogin/verify
@@ -127,7 +133,7 @@ app.post("/ownerCreate/create", async (req, res)=> {
   let name=req.body.name;
   let address=req.body.address;
   let phoneNum=parseInt(req.body.phoneNum);
-  let salary=parseFloat(req.body.phoneNum).toFixed(2);
+  let salary=parseFloat(req.body.salary).toFixed(2);
   let nextID = 0;
   let SQLquery = `SELECT MAX(ID) FROM customer`;
   try {
@@ -202,12 +208,7 @@ app.get("/customerCreate", (req, res)=> {
   if (loggedIn) {
     res.redirect("/bookBrowse");
   } else {
-    if (!loggedIn && !loggedAsOwner) {
-      console.log("Not authorized to access this page... Redirecting to home, please login!");
-      res.redirect('/');
-    } else{
       res.render("pages/customerCreate");
-    }
   }
 });
 
@@ -222,8 +223,14 @@ app.post("/customerCreate/create", async (req, res)=> {
     let name=req.body.name;
     let address=req.body.address;
     let phoneNum=parseInt(req.body.phoneNum);
-    let SQLquery = `INSERT INTO customer VALUES (DEFAULT, '${email}', '${password}', '${name}', '${address}', ${phoneNum})`;
+    let SQLquery = `SELECT MAX(ID) FROM customer`;
+    let nextID;
     try {
+        const response = await client.query(SQLquery);
+        if (response.rows) {
+          nextID = response.rows[0].max +1;
+        } 
+        SQLquery = `INSERT INTO customer VALUES (${nextID}, '${email}', '${password}', '${name}', '${address}', ${phoneNum})`;
         await client.query(SQLquery);
         await client.query('COMMIT');
         res.status(200).send();
@@ -242,6 +249,7 @@ app.get("/bookBrowse", async (req, res)=> {
     console.log("Not authorized to access this page... Redirecting to home, please login!");
     res.redirect('/');
   } else{
+    console.log(loggedAsOwner);
     let data = renderBrowsePage({loggedAsOwner, loggedInUserInfo});
     res.send(data);
   }
@@ -261,9 +269,9 @@ app.post("/bookBrowse/search", async (req, res)=> {
     } else{
       if (!isNaN(query)) {
         let qNum = parseFloat(query).toFixed(2);;
-        SQLquery = `SELECT book_name, book_author, publisher_name, book_price, genre, num_of_pages, genre, stock, book_ID FROM book INNER JOIN publisher using(publisher_ID) WHERE book_price=${qNum} OR num_of_pages=${qNum} GROUP BY book_name, book_author, publisher_name, book_price, genre, num_of_pages, genre, stock, book_ID`;
+        SQLquery = `SELECT book_name, book_author, publisher_name, book_price, genre, num_of_pages, genre, stock, book_ID FROM book INNER JOIN publisher using(publisher_ID) WHERE ROUND(book_price, 0) BETWEEN ROUND(${qNum}, 0)-1 AND ROUND(${qNum}, 0)+1 OR num_of_pages=${qNum} OR stock=${qNum}GROUP BY book_name, book_author, publisher_name, book_price, genre, num_of_pages, genre, stock, book_ID`;
       } else {
-        SQLquery = `SELECT book_name, book_author, publisher_name, book_price, genre, num_of_pages, genre, stock, book_ID FROM book INNER JOIN publisher using(publisher_ID) WHERE book_name='${query}' OR book_author='${query}' OR genre='${query}' OR publisher_name='${query}' GROUP BY book_name, book_author, publisher_name, book_price, genre, num_of_pages, genre, stock, book_ID`;
+        SQLquery = `SELECT book_name, book_author, publisher_name, book_price, genre, num_of_pages, genre, stock, book_ID FROM book INNER JOIN publisher using(publisher_ID) WHERE book_name~'${query}' OR book_author~'${query}' OR genre~'${query}' OR publisher_name~'${query}' GROUP BY book_name, book_author, publisher_name, book_price, genre, num_of_pages, genre, stock, book_ID`;
       }
     }
     try {
@@ -308,7 +316,6 @@ app.post("/bookResult/order", async (req, res)=> {
   let cardDate=req.body.cardDate;
   let cardCVV=parseInt(req.body.cardCVV);
   let orderItems=req.body.cart;
-  //CURRENT_TIMESTAMP()
   console.log(JSON.stringify(orderItems));
   console.log(loggedInUserInfo);
   console.log(loggedInUserInfo.id);
@@ -350,7 +357,6 @@ app.post("/bookResult/order", async (req, res)=> {
         SQLquery = `INSERT INTO order_book VALUES (${nextOrderID}, ${item.book_ID}, '${item.book_name}', '${item.book_author}', ${item.quantity})`;
         await client.query(SQLquery);
         await client.query('COMMIT');
-        res.status(200).send('order success');
       } catch (err) {
         await client.query('ROLLBACK');
         console.log(err.stack);
@@ -362,6 +368,7 @@ app.post("/bookResult/order", async (req, res)=> {
     console.log(err.stack);
     res.status(500).send(JSON.stringify(err));
   }
+  res.status(200).send('order success');
 });
 
 //Handler for request: GET /orders
@@ -392,41 +399,45 @@ app.get("/orders", async (req, res)=> {
 app.get("/orders/:id", async (req, res)=> {
   let orderID = req.params.id;
   console.log("Called GET request for /orders/" + orderID);
-  let SQLquery = `SELECT DISTINCT * FROM getOrderInfo(${orderID});`;
-  let orderInfos = [];
-  let orderInfo = {};
-  try {
-    let response = await client.query(SQLquery);
-    if(response.rows) {
-      orderInfos = response.rows;
-      console.log(orderInfos);
-    } 
-    SQLquery = `SELECT DISTINCT * FROM getOrderTotal(${orderID});`;
-    response = await client.query(SQLquery);
-    let totalPrice  = response.rows[0].getordertotal; 
-    orderInfos.forEach((info) => {
-      if (!orderInfo[orderID]) {
-        orderInfo[orderID] = {
-          orderID: orderID,
-          shipAddr: info.shipping_address,
-          billAddr: info.billing_address,
-          trackingID: info.tracking_id,
-          orderTime: info.order_date_time.toString(),
-          books: [`${info.book_name} x ${info.quantity}`],
-          totalPrice: totalPrice,
-        };
-      } else {
-        let tempArr = orderInfo[orderID].books;
-        tempArr.push(`${info.book_name} x ${info.quantity}`);
-        orderInfo[orderID].books = tempArr;
-      }
-    });
-    orderInfo = orderInfo[orderID];
-    let data = renderOrderPage({loggedAsOwner, loggedInUserInfo, orderInfo});
-    res.send(data);
-  } catch (err) {
-    console.log(err.stack);
-    res.status(500).send(JSON.stringify(err.stack));
+  if (!loggedIn) {
+    res.redirect('/');
+  }  else {
+    let SQLquery = `SELECT DISTINCT * FROM getOrderInfo(${orderID});`;
+    let orderInfos = [];
+    let orderInfo = {};
+    try {
+      let response = await client.query(SQLquery);
+      if(response.rows) {
+        orderInfos = response.rows;
+        console.log(orderInfos);
+      } 
+      SQLquery = `SELECT DISTINCT * FROM getOrderTotal(${orderID});`;
+      response = await client.query(SQLquery);
+      let totalPrice  = response.rows[0].getordertotal; 
+      orderInfos.forEach((info) => {
+        if (!orderInfo[orderID]) {
+          orderInfo[orderID] = {
+            orderID: orderID,
+            shipAddr: info.shipping_address,
+            billAddr: info.billing_address,
+            trackingID: info.tracking_id,
+            orderTime: info.order_date_time.toString(),
+            books: [`${info.book_name} x ${info.quantity}`],
+            totalPrice: totalPrice,
+          };
+        } else {
+          let tempArr = orderInfo[orderID].books;
+          tempArr.push(`${info.book_name} x ${info.quantity}`);
+          orderInfo[orderID].books = tempArr;
+        }
+      });
+      orderInfo = orderInfo[orderID];
+      let data = renderOrderPage({loggedAsOwner, loggedInUserInfo, orderInfo});
+      res.send(data);
+    } catch (err) {
+      console.log(err.stack);
+      res.status(500).send(JSON.stringify(err.stack));
+    }
   }
 });
 
@@ -588,7 +599,7 @@ app.post("/reports/expenditures", async (req, res)=> {
       SQLquery = `SELECT (SUM(salary_paid_totals_for_day.sum) + SUM(publisher_paid_totals_for_dates.sum)) AS expenditure FROM salary_paid_totals_for_day, publisher_paid_totals_for_dates WHERE date='${date1}'`;
     }
   } else {
-    SQLquery = `SELECT (SUM(salary_paid_totals_for_day.sum) + SUM(publisher_paid_totals_for_dates.sum)) AS expenditure FROM salary_paid_totals_for_day, publisher_paid_totals_for_dates`;
+    SQLquery = `SELECT (SUM(salary_paid_totals_year.sum) + SUM(publisher_paid_totals_for_dates.sum)) AS expenditure FROM salary_paid_totals_year, publisher_paid_totals_for_dates`;
   }
   try {
     let response = await client.query(SQLquery);
@@ -639,7 +650,7 @@ app.post("/reports/profits", async (req, res)=> {
     }
   } else {
     SQLquerySales = `SELECT SUM(sum) FROM order_totals_for_dates`;
-    SQLqueryExpend = `SELECT (SUM(salary_paid_totals_for_day.sum) + SUM(publisher_paid_totals_for_dates.sum)) AS expenditure FROM salary_paid_totals_for_day, publisher_paid_totals_for_dates`;
+    SQLqueryExpend = `SELECT (SUM(salary_paid_totals_year.sum) + SUM(publisher_paid_totals_for_dates.sum)) AS expenditure FROM salary_paid_totals_year, publisher_paid_totals_for_dates`;
   }
   try {
     let response = await client.query(SQLqueryExpend);
@@ -688,8 +699,14 @@ app.post("/addRemove/add", async (req, res)=> {
   let bookGen = req.body.bookGen;
   let bookPages = req.body.bookPages;
   let bookSt = req.body.bookSt;
-  let SQLquery = `INSERT INTO book VALUES (DEFAULT, '${bookName}', '${bookAuth}', ${pubID}, '${pubEm}', ${pubPerc}, ${bookPrice}, '${bookGen}', ${bookPages}, ${bookSt})`;
+  let SQLquery = `SELECT MAX(book_id) FROM book`;
+  let nextID;
   try {
+      const response = await client.query(SQLquery);
+      if (response.rows) {
+        nextID = response.rows[0].max +1;
+      } 
+      SQLquery = `INSERT INTO book VALUES (${nextID}, '${bookName}', '${bookAuth}', ${pubID}, '${pubEm}', ${pubPerc}, ${bookPrice}, '${bookGen}', ${bookPages}, ${bookSt})`;
       await client.query(SQLquery);
       await client.query('COMMIT');
       res.status(200).send('COMMITED');

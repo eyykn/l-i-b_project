@@ -21,8 +21,14 @@ CREATE VIEW publisher_paid_totals_for_dates AS
     GROUP BY order_all_details.order_date_time;
 
 
---Gets all money paid to an owner for one day (assumes yearly salary is 8 hours per day for 260 days and all owners work all days) (seperate totals for seperate orders)
+--Gets all money paid to an owner for one day (assumes yearly salary is 8 hours per day for 260 days and all owners work all days)
 CREATE VIEW salary_paid_totals_for_day AS
 	SELECT sum(yearly_salary/260)
+	FROM owner
+	GROUP BY ID;
+
+--Gets all money paid to an owner for one year
+CREATE VIEW salary_paid_totals_year AS
+	SELECT sum(yearly_salary)
 	FROM owner
 	GROUP BY ID;

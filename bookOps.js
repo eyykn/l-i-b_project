@@ -64,15 +64,15 @@ function addToCart(id){
   document.getElementById("items").innerHTML = "";
   //Make a get request to the database
   let item = document.getElementById(id).innerHTML;
-  let semiColonIndices = [];
+  let eql_indices = [];
   let commaIndices = [];
   for(var i=0; i<item.length;i++) {
-    if (item[i] === ":") semiColonIndices.push(i);
+    if (item[i] === "=") eql_indices.push(i);
     if (item[i] === ",") commaIndices.push(i);
   }
   let sIndex = -1;
   let cIndex = -1;
-  let stock = item.slice(semiColonIndices[semiColonIndices.length-1]+2, commaIndices[commaIndices.length-1]);
+  let stock = item.slice(eql_indices[eql_indices.length-1]+2, commaIndices[commaIndices.length-1]);
   if (cart[id]) {
     let quantity = cart[id].quantity;
     if (stock < quantity+1) {
@@ -84,8 +84,8 @@ function addToCart(id){
     if (stock < 1) {
       cart[id] = {
         book_ID: id,
-        book_name: item.slice(semiColonIndices[sIndex+=1]+2, commaIndices[cIndex+=1]),
-        book_author: item.slice(semiColonIndices[sIndex+=1]+2, commaIndices[cIndex+=1]),
+        book_name: item.slice(eql_indices[sIndex+=1]+2, commaIndices[cIndex+=1]),
+        book_author: item.slice(eql_indices[sIndex+=1]+2, commaIndices[cIndex+=1]),
         quantity: 1
       };
     } else {
@@ -113,7 +113,7 @@ function removeFromCart(id){
 
 // Function to reload page for new search 
 function goToSearch(){
-  if (cart) {
+  if (document.getElementById("items").innerHTML !== "") {
     alert("Please complete current order before making another search or cart contents will be lost!");
   } else {
     window.location.replace("/bookBrowse");

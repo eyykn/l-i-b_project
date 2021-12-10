@@ -47,7 +47,7 @@ function getSales(q){
 function getSalesByInfo(type, q){
     if (type === "" || q === "") {
         alert("Please specify a type and/or query to get sales for or use the profit by date generator above.");
-    } 
+    } else {
       //Make a get request to the database
       let request = new XMLHttpRequest();
       request.onreadystatechange = function() {
@@ -64,6 +64,7 @@ function getSalesByInfo(type, q){
       requestObj.type=type;
       requestObj.query=q;
       request.send(JSON.stringify(requestObj)); //Send request
+    }
 }
 
 

@@ -19,6 +19,7 @@ html
 						input(type="submit" id="submitBtn" value="Get Report" onclick="getSales(document.getElementById('sales').value)")
 					br
 					h2 Info Type and Value To Get Sales Total For (i.e., genre, author):
+						p Must supply both attribute and query or report will not be generated.
 						input(type="textbox" id="salesInfoType")
 						input(type="textbox" id="salesInfoValue")
 						input(type="submit" id="submitBtn" value="Get Report" onclick="getSalesByInfo(document.getElementById('salesInfoType').value, document.getElementById('salesInfoValue').value)")

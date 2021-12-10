@@ -51,7 +51,7 @@ function addLogin(e, p, n, a, pN, sal){
       requestObj.name=n;
       requestObj.address=a;
       requestObj.phoneNum=pN;
-      if (window.location.href.includes('ownerLogin')) {
+      if (window.location.href.includes('ownerCreate')) {
         requestObj.salary=sal;
       }
       request.send(JSON.stringify(requestObj)); //Send request

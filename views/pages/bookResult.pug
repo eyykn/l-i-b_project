@@ -3,7 +3,7 @@ html
 		title  Look Inna Book Store Search Results
 
 	body
-		if loggedAsOwner = true 
+		if loggedAsOwner
 			include ../partials/ownerHeader
 		else 
 			include ../partials/userHeader
@@ -20,10 +20,10 @@ html
 					ul
 						each val, key in searchArr
 							li
-								p(id=`${val[7]}`) Title: #{val[0]}, Author: #{val[1]}, Publisher: #{val[2]}, Price:#{val[3]}, Genre: #{val[4]}, Page Num: #{val[5]}, Stock: #{val[6]}
+								p(id=`${val[7]}`) Title= #{val[0]}, Author= #{val[1]}, Publisher= #{val[2]}, Price=#{val[3]}, Genre= #{val[4]}, Page Num= #{val[5]}, Stock= #{val[6]}
 								button(id="addBtn" value="+" onclick=`addToCart(${val[7]})`)  
 					h2 Make another search?
-					button(id="goToSearch" value="Go To Search Page" onclick=`goToSearch()`)  
+					input(type="submit" id="goToSearch" value="Make another search!" onclick=`goToSearch()`)  
 				.column
 					h3 Cart Contents: 
 					ul#items
@@ -31,6 +31,7 @@ html
 					br
 					br
 					div#checkoutInfo
+					br
 					input(type="submit" id="submitBtn" value="Complete Order" onclick=`placeOrder(document.getElementById('shipAddr').value, document.getElementById('billAddr').value, document.getElementById('cardNum').value, document.getElementById('cardDate').value, document.getElementById('cardCVV').value)`)
 		style.
 			* {
@@ -71,6 +72,15 @@ html
 				color: white;
 				height: 30px;
 				width: 7%;
+			}
+			#goToSearch {
+				background: #556B2F;
+				border-radius: 5px;
+				text-align: center;
+				padding: 10px;
+				color: white;
+				height: 5%;
+				width: 20%;
 			}
 			.row {
 				content="";
