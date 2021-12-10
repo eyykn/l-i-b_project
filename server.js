@@ -267,7 +267,7 @@ app.post("/bookBrowse/search", async (req, res)=> {
       SQLquery = `SELECT book_name, book_author, publisher_name, book_price, genre, num_of_pages, genre, stock, book_ID FROM book INNER JOIN publisher using(publisher_ID) GROUP BY book_name, book_author, publisher_name, book_price, genre, num_of_pages, genre, stock, book_ID`;
     } else{
       if (!isNaN(query)) {
-        let qNum = parseFloat(query).toFixed(2);;
+        let qNum = parseFloat(query).toFixed(2);
         SQLquery = `SELECT book_name, book_author, publisher_name, book_price, genre, num_of_pages, genre, stock, book_ID FROM book INNER JOIN publisher using(publisher_ID) WHERE ROUND(book_price, 0) BETWEEN ROUND(${qNum}, 0)-1 AND ROUND(${qNum}, 0)+1 OR num_of_pages=${qNum} OR stock=${qNum}GROUP BY book_name, book_author, publisher_name, book_price, genre, num_of_pages, genre, stock, book_ID`;
       } else {
         SQLquery = `SELECT book_name, book_author, publisher_name, book_price, genre, num_of_pages, genre, stock, book_ID FROM book INNER JOIN publisher using(publisher_ID) WHERE book_name~'${query}' OR book_author~'${query}' OR genre~'${query}' OR publisher_name~'${query}' GROUP BY book_name, book_author, publisher_name, book_price, genre, num_of_pages, genre, stock, book_ID`;
