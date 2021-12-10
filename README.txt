@@ -9,7 +9,7 @@ COMP3005 Project - Instructions to Compile/Run:
   
   This will download the dependencies listed in the package.json file.
 
-3. Go to your PostgreSQL client (pgAdmin) and create a databse titled "lookInnaBook" and copy-paste the contents of the "DDL.sql" file in the SQL folder into the query editor of the database. 
+3. Go to your PostgreSQL client (pgAdmin) and create a databse titled "libDB" and copy-paste the contents of the "DDL.sql" file in the SQL folder into the query editor of the database. 
 
     This will create the database the JS application uses. 
 
